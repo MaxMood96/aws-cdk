@@ -161,7 +161,7 @@ export abstract class ScheduledTaskBase extends CoreConstruct {
       throw new Error('You must specify a desiredTaskCount greater than 0');
     }
     this.desiredTaskCount = props.desiredTaskCount || 1;
-    this.subnetSelection = props.subnetSelection || { subnetType: SubnetType.PRIVATE };
+    this.subnetSelection = props.subnetSelection || { subnetType: SubnetType.PRIVATE_WITH_NAT };
     this._securityGroups = props.securityGroups;
 
     // An EventRule that describes the event trigger (in this case a scheduled run)
@@ -170,6 +170,9 @@ export abstract class ScheduledTaskBase extends CoreConstruct {
       ruleName: props.ruleName,
       enabled: props.enabled,
     });
+
+    // add a warning on synth when minute is not defined in a cron schedule
+    props.schedule._bind(scope);
   }
 
   /**

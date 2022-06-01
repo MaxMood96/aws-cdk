@@ -1812,6 +1812,11 @@ export interface AddRouteOptions {
  */
 export enum RouterType {
   /**
+   * Carrier gateway
+   */
+  CARRIER_GATEWAY = 'CarrierGateway',
+
+  /**
    * Egress-only Internet Gateway
    */
   EGRESS_ONLY_INTERNET_GATEWAY = 'EgressOnlyInternetGateway',
@@ -1827,6 +1832,11 @@ export enum RouterType {
   INSTANCE = 'Instance',
 
   /**
+   * Local Gateway
+   */
+  LOCAL_GATEWAY = 'LocalGateway',
+
+  /**
    * NAT Gateway
    */
   NAT_GATEWAY = 'NatGateway',
@@ -1837,19 +1847,33 @@ export enum RouterType {
   NETWORK_INTERFACE = 'NetworkInterface',
 
   /**
+   * Transit Gateway
+   */
+  TRANSIT_GATEWAY = 'TransitGateway',
+
+  /**
    * VPC peering connection
    */
   VPC_PEERING_CONNECTION = 'VpcPeeringConnection',
+
+  /**
+   * VPC Endpoint for gateway load balancers
+   */
+  VPC_ENDPOINT = 'VpcEndpoint',
 }
 
 function routerTypeToPropName(routerType: RouterType) {
   return ({
+    [RouterType.CARRIER_GATEWAY]: 'carrierGatewayId',
     [RouterType.EGRESS_ONLY_INTERNET_GATEWAY]: 'egressOnlyInternetGatewayId',
     [RouterType.GATEWAY]: 'gatewayId',
     [RouterType.INSTANCE]: 'instanceId',
+    [RouterType.LOCAL_GATEWAY]: 'localGatewayId',
     [RouterType.NAT_GATEWAY]: 'natGatewayId',
     [RouterType.NETWORK_INTERFACE]: 'networkInterfaceId',
+    [RouterType.TRANSIT_GATEWAY]: 'transitGatewayId',
     [RouterType.VPC_PEERING_CONNECTION]: 'vpcPeeringConnectionId',
+    [RouterType.VPC_ENDPOINT]: 'vpcEndpointId',
   })[routerType];
 }
 
@@ -2207,6 +2231,24 @@ const DUMMY_VPC_PROPS: cxapi.VpcContextResponse = {
     {
       name: 'Private',
       type: cxapi.VpcSubnetGroupType.PRIVATE,
+      subnets: [
+        {
+          availabilityZone: 'dummy1a',
+          subnetId: 'p-12345',
+          routeTableId: 'rtb-12345p',
+          cidr: '1.2.3.4/5',
+        },
+        {
+          availabilityZone: 'dummy1b',
+          subnetId: 'p-67890',
+          routeTableId: 'rtb-57890p',
+          cidr: '1.2.3.4/5',
+        },
+      ],
+    },
+    {
+      name: 'Isolated',
+      type: cxapi.VpcSubnetGroupType.ISOLATED,
       subnets: [
         {
           availabilityZone: 'dummy1a',

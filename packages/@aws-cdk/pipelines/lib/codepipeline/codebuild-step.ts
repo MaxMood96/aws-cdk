@@ -67,6 +67,13 @@ export interface CodeBuildStepProps extends ShellStepProps {
   readonly role?: iam.IRole;
 
   /**
+   * Custom execution role to be used for the Code Build Action
+   *
+   * @default - A role is automatically created
+   */
+  readonly actionRole?: iam.IRole;
+
+  /**
    * Changes to environment
    *
    * This environment will be combined with the pipeline's default
@@ -147,6 +154,13 @@ export class CodeBuildStep extends ShellStep {
   public readonly role?: iam.IRole;
 
   /**
+   * Custom execution role to be used for the Code Build Action
+   *
+   * @default - A role is automatically created
+   */
+  readonly actionRole?: iam.IRole;
+
+  /**
    * Build environment
    *
    * @default - No value specified at construction time, use defaults
@@ -183,6 +197,7 @@ export class CodeBuildStep extends ShellStep {
     this.vpc = props.vpc;
     this.subnetSelection = props.subnetSelection;
     this.role = props.role;
+    this.actionRole = props.actionRole;
     this.rolePolicyStatements = props.rolePolicyStatements;
     this.securityGroups = props.securityGroups;
     this.timeout = props.timeout;
@@ -234,6 +249,20 @@ export class CodeBuildStep extends ShellStep {
    * it finishes its `post_build` phase.
    *
    * @param variableName the name of the variable for reference.
+   * @example
+   * // Access the output of one CodeBuildStep in another CodeBuildStep
+   * declare const pipeline: pipelines.CodePipeline;
+   *
+   * const step1 = new pipelines.CodeBuildStep('Step1', {
+   *   commands: ['export MY_VAR=hello'],
+   * });
+   *
+   * const step2 = new pipelines.CodeBuildStep('Step2', {
+   *   env: {
+   *     IMPORTED_VAR: step1.exportedVariable('MY_VAR'),
+   *   },
+   *   commands: ['echo $IMPORTED_VAR'],
+   * });
    */
   public exportedVariable(variableName: string): string {
     if (this.exportedVarsRendered && !this.exportedVariables.has(variableName)) {
