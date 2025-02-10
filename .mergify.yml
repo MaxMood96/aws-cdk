@@ -1,14 +1,89 @@
 # See https://doc.mergify.io
 queue_rules:
-  - name: default
-    conditions:
+  - name: duplicated default from automatic merge
+    queue_conditions:
+      - base!=release
+      - -title~=(WIP|wip)
+      - -label~=(blocked|do-not-merge|no-squash|two-approvers)
+      - -merged
+      - -closed
+      - author!=dependabot[bot]
+      - author!=dependabot-preview[bot]
+      - "#approved-reviews-by>=1"
+      - -approved-reviews-by~=author
+      - "#changes-requested-reviews-by=0"
       - status-success~=AWS CodeBuild us-east-1
+      - status-success=validate-pr
+    merge_conditions:
+      - status-success~=AWS CodeBuild us-east-1
+    commit_message_template: |-
+      {{ title }} (#{{ number }})
+      {{ body }}
+    merge_method: squash
+  - name: duplicated default from automatic merge (2+ approvers)
+    queue_conditions:
+      - base!=release
+      - -title~=(WIP|wip)
+      - label~=two-approvers
+      - -label~=(blocked|do-not-merge|no-squash)
+      - -merged
+      - -closed
+      - author!=dependabot[bot]
+      - author!=dependabot-preview[bot]
+      - "#approved-reviews-by>=2"
+      - -approved-reviews-by~=author
+      - "#changes-requested-reviews-by=0"
+      - status-success~=AWS CodeBuild us-east-1
+      - status-success=validate-pr
+    merge_conditions:
+      - status-success~=AWS CodeBuild us-east-1
+    commit_message_template: |-
+      {{ title }} (#{{ number }})
+      {{ body }}
+    merge_method: squash
+  - name: duplicated default from automatic merge (no-squash)
+    queue_conditions:
+      - -title~=(WIP|wip)
+      - -label~=(blocked|do-not-merge)
+      - label~=no-squash
+      - -merged
+      - -closed
+      - author!=dependabot[bot]
+      - author!=dependabot-preview[bot]
+      - "#approved-reviews-by>=1"
+      - -approved-reviews-by~=author
+      - "#changes-requested-reviews-by=0"
+      - status-success~=AWS CodeBuild us-east-1
+      - status-success=validate-pr
+    merge_conditions:
+      - status-success~=AWS CodeBuild us-east-1
+    commit_message_template: |-
+      {{ title }} (#{{ number }})
+      {{ body }}
+    merge_method: merge
+  - name: duplicated default from automatic merge of Dependabot PRs
+    queue_conditions:
+      - -title~=(WIP|wip)
+      - -label~=(blocked|do-not-merge)
+      - -merged
+      - -closed
+      - author~=dependabot
+      - "#approved-reviews-by>=1"
+      - "#changes-requested-reviews-by=0"
+      - status-success~=AWS CodeBuild us-east-1
+      - status-success=validate-pr
+    merge_conditions:
+      - status-success~=AWS CodeBuild us-east-1
+    commit_message_template: |-
+      {{ title }} (#{{ number }})
+      {{ body }}
+    merge_method: squash
 
 pull_request_rules:
   - name: label core
     actions:
       label:
-        add: [ contribution/core ]
+        add: [contribution/core]
     conditions:
       - author~=^(eladb|RomainMuller|garnaat|nija-at|skinny85|rix0rrr|NGL321|Jerry-AWS|MrArnoldPalmer|NetaNir|iliapolo|njlynch|ericzbeard|ccfife|fulghum|pkandasamy91|SoManyHs|uttarasridhar|otaviomacedo|BenChaimberg|madeline-k|BryanPan342|kaizen3031593|comcalvi|Chriscbr|corymhall|peterwoodworth|ryparker|TheRealAmazonKendra)$
       - -label~="contribution/core"
@@ -16,12 +91,6 @@ pull_request_rules:
     actions:
       comment:
         message: Thank you for contributing! Your pull request will be updated from master and then merged automatically (do not update manually, and be sure to [allow changes to be pushed to your fork](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork)).
-      queue:
-        name: default
-        method: squash
-        commit_message_template: |-
-          {{ title }} (#{{ number }})
-          {{ body }}
     conditions:
       - base!=release
       - -title~=(WIP|wip)
@@ -39,12 +108,6 @@ pull_request_rules:
     actions:
       comment:
         message: Thank you for contributing! Your pull request will be automatically updated and merged (do not update manually, and be sure to [allow changes to be pushed to your fork](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork)).
-      queue:
-        name: default
-        method: squash
-        commit_message_template: |-
-          {{ title }} (#{{ number }})
-          {{ body }}
     conditions:
       - base!=release
       - -title~=(WIP|wip)
@@ -63,12 +126,6 @@ pull_request_rules:
     actions:
       comment:
         message: Thank you for contributing! Your pull request will be automatically updated and merged without squashing (do not update manually, and be sure to [allow changes to be pushed to your fork](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork)).
-      queue:
-        name: default
-        method: merge
-        commit_message_template: |-
-          {{ title }} (#{{ number }})
-          {{ body }}
     conditions:
       - -title~=(WIP|wip)
       - -label~=(blocked|do-not-merge)
@@ -109,12 +166,6 @@ pull_request_rules:
     actions:
       comment:
         message: Thanks Dependabot!
-      queue:
-        name: default
-        method: squash
-        commit_message_template: |-
-          {{ title }} (#{{ number }})
-          {{ body }}
     conditions:
       - -title~=(WIP|wip)
       - -label~=(blocked|do-not-merge)
@@ -125,3 +176,7 @@ pull_request_rules:
       - "#changes-requested-reviews-by=0"
       - status-success~=AWS CodeBuild us-east-1
       - status-success=validate-pr
+  - name: automatic merge + automatic merge (2+ approvers) + automatic merge (no-squash) + automatic merge of Dependabot PRs
+    conditions: []
+    actions:
+      queue:
