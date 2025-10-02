@@ -25,8 +25,8 @@
     "jsii-pacmak": "^1.54.0",
     "jsii-reflect": "^1.54.0",
     "jsii-rosetta": "^1.54.0",
-    "lerna": "^4.0.0",
-    "patch-package": "^6.4.7",
+    "lerna": "^6.5.0",
+    "patch-package": "^8.0.1",
     "semver": "^6.3.0",
     "standard-version": "^9.3.2",
     "typescript": "~3.9.10"
